@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem popular = menu.findItem(R.id.most_popular);
-        MenuItem rated = menu.findItem(R.id.most_rated);
+        MenuItem rated = menu.findItem(R.id.highest_rated);
         if (selection == MenuSelection.rated) {
             rated.setEnabled(false);
             popular.setEnabled(true);
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             updateSharedPrefBasedOnSelection(getString(R.string.most_popular));
         } else {
             selection = MenuSelection.rated;
-            updateSharedPrefBasedOnSelection(getString(R.string.most_rated));
+            updateSharedPrefBasedOnSelection(getString(R.string.highest_rated));
         }
 
         (new CallApiBasedOnSelection()).execute(selection);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.key_selection),
                 defaultSelectionString
         );
-        if (selectedValue != null && selectedValue.equalsIgnoreCase(getString(R.string.most_rated))) {
+        if (selectedValue != null && selectedValue.equalsIgnoreCase(getString(R.string.highest_rated))) {
             selection = MenuSelection.rated;
         } else {
             selection = MenuSelection.popular;
