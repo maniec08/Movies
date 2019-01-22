@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="most_rated">Most Rated</string>
+    <string name="image_view_cd">Movie Poster</string>
+    <string name="key_selection">selection</string>
+    <string name="released_on_label">Released: </string>
+    <string name="rating_label">Rating: </string>
+    <string name="key_movie_details">movie_details</string>
+</resources>
