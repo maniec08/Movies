@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.mani.movies.R;
 import com.mani.movies.activity.DetailsActivity;
+import com.mani.movies.datastruct.MovieDetails;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

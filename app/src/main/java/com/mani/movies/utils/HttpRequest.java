@@ -12,9 +12,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 class HttpRequest {
-    private static String TAG = HttpRequest.class.getSimpleName();
+    private static final String TAG = HttpRequest.class.getSimpleName();
     private URL requestUrl;
-    private static String API_KEY = "Please update API Key";
+    private static String API_KEY = "5bec4d5c49f34f67b3c31e23cfd32a6b";
     private HttpURLConnection connection = null;
 
     HttpRequest(String url) {
@@ -37,6 +37,7 @@ class HttpRequest {
             if (responceCode == HttpURLConnection.HTTP_OK) {
                 inputStream = connection.getInputStream();
                 data = getStringFromInputStream(inputStream);
+                Log.d(TAG, "API Response --> " + data);
             }
         } finally {
             if (connection != null) {

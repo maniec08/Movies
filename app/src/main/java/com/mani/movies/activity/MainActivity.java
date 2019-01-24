@@ -14,16 +14,16 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 
 import com.mani.movies.R;
+import com.mani.movies.datastruct.MovieDetails;
 import com.mani.movies.utils.ExtractMovieDetails;
 import com.mani.movies.utils.ImageAdapter;
-import com.mani.movies.utils.MovieDetails;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private enum MenuSelection {
+    public enum MenuSelection {
         popular, rated
     }
 
@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.VISIBLE);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.
         setSupportActionBar(toolbar);
         gridView = findViewById(R.id.movie_grid);
         (new CallApiBasedOnSelection()).execute(selection);
@@ -65,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+
         MenuItem popular = menu.findItem(R.id.most_popular);
         MenuItem rated = menu.findItem(R.id.highest_rated);
+
         if (selection == MenuSelection.rated) {
             rated.setEnabled(false);
             popular.setEnabled(true);
@@ -113,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    private void updateUI(List<MovieDetails> movieDetails) {
+        movieDetailsList=movieDetails;
+        updateUI();
+    }
     private void updateUI() {
         progressBar.setVisibility(View.GONE);
         ImageAdapter imageAdapter = new ImageAdapter(movieDetailsList, this);

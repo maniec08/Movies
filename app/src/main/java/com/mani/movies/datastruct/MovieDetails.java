@@ -1,4 +1,6 @@
-package com.mani.movies.utils;
+package com.mani.movies.datastruct;
+
+import android.os.Parcelable;
 
 import java.io.Serializable;
 
@@ -9,17 +11,25 @@ public class MovieDetails implements Serializable {
     private String overview;
     private String rating;
     private String releaseDate;
+    private String duration;
 
-    MovieDetails(String moviePosterUrl, String title, String thumbnail, String overview, String rating, String releaseDate) {
+    public String getMovieId() {
+        return movieId;
+    }
+
+    private String movieId;
+
+    public MovieDetails(String moviePosterUrl, String title, String thumbnail, String overview, String rating, String releaseDate, String movieId) {
         this.moviePosterUrl = moviePosterUrl;
         this.title = title;
         this.thumbnail = thumbnail;
         this.overview = overview;
         this.rating = rating;
         this.releaseDate = releaseDate;
+        this.movieId = movieId;
     }
 
-    String getMoviePosterUrl() {
+    public String getMoviePosterUrl() {
         return moviePosterUrl;
     }
 
@@ -44,6 +54,14 @@ public class MovieDetails implements Serializable {
 
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
 
