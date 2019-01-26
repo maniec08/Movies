@@ -1,4 +1,4 @@
-package com.mani.movies.utils;
+package com.mani.movies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -63,8 +63,10 @@ public class ImageAdapter extends BaseAdapter {
             }
         });
         Picasso.with(context)
-                .load(movieDetailsList.get(position).getMoviePosterUrl()).error(R.color.colorgrey)
+                .load(movieDetailsList.get(position).getMoviePosterUrl())
+                .error(R.drawable.image_uavailable)
                 .into(imageView);
+
 
         return imageView;
     }

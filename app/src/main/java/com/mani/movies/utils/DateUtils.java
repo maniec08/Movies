@@ -10,6 +10,9 @@ import java.util.Locale;
 public class DateUtils {
 
     public static String getYear(String date){
+        if(date.isEmpty()){
+            return "";
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Date parse = null;
         try {

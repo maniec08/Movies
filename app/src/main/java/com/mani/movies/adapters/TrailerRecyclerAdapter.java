@@ -22,14 +22,14 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
     private LayoutInflater layoutInflater;
     private Context trailerContext;
 
-    public TrailerRecyclerAdapter(Context context, List<TrailerDetails> data){
+    public TrailerRecyclerAdapter(Context context, List<TrailerDetails> data) {
         this.layoutInflater = LayoutInflater.from(context);
-        trailerData= data;
+        trailerData = data;
         trailerContext = context;
 
     }
 
-    private void playVideo( int position){
+    private void playVideo(int position) {
         String videoId = trailerData.get(position).getKey();
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId));
@@ -40,6 +40,7 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
         }
 
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -65,13 +66,18 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
             super(itemView);
             trailorTextView = itemView.findViewById(R.id.trailer_describtion_tv);
             playButton = itemView.findViewById(R.id.trailer_play_iv);
+
             itemView.setOnClickListener(this);
             playButton.setOnClickListener(this);
+
         }
 
         @Override
         public void onClick(View view) {
-            playVideo(getAdapterPosition());
+            if (!trailorTextView.getText().toString().equalsIgnoreCase(
+                    trailerContext.getString(R.string.trailer_unavailble))) {
+                playVideo(getAdapterPosition());
+            }
         }
     }
 }
