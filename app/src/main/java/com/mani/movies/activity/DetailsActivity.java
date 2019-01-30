@@ -139,7 +139,7 @@ public class DetailsActivity extends AppCompatActivity {
                 .error(R.drawable.image_uavailable)
                 .into(thumbnail);
         if (!(movieDetails.getReleaseDate() == null || movieDetails.getReleaseDate().isEmpty())) {
-            released.setText(DateUtils.getYear(movieDetails.getReleaseDate()));
+            released.setText(movieDetails.getReleaseDate());
         }
         if (!(movieDetails.getDuration() == null || movieDetails.getDuration().isEmpty())) {
             duration.setText(String.format(getString(R.string.duration_mins), movieDetails.getDuration()));

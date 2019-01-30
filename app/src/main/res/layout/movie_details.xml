@@ -55,12 +55,12 @@
 
                     <TextView
                         android:id="@+id/released_on_tv"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="10dp"
                         android:paddingEnd="5dp"
                         android:paddingStart="5dp"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         app:layout_constraintTop_toBottomOf="parent" />
                     <TextView
                         android:id="@+id/duration_tv"

@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String SELECTION = "selection";
     public static final String MOVIE = "movie";
+    public static final String GRID_VIEW_STATE = "gridviewstate";
     public static final String POPULAR = "popular";
     public static final String RATED = "rated";
     public static final String FAVORITE = "favorite";
@@ -53,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<MovieDetails> favMovieDetails;
     ProgressBar progressBar;
     TextView userInfoMessage;
+    int gridViewPosition;
     AppDb appDb;
     Toolbar toolbar;
+    Parcelable gridViewState;
     ArrayList<String> movieIds = new ArrayList<>();
 
     @Override
@@ -91,7 +95,10 @@ public class MainActivity extends AppCompatActivity {
             savedInstanceState.putParcelableArrayList(MOVIE, apiMovieDetails);
 
         }
+
         savedInstanceState.putString(SELECTION, selection.toString());
+         gridViewState = gridView.onSaveInstanceState();
+        savedInstanceState.putParcelable(GRID_VIEW_STATE, gridViewState);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -112,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
             apiMovieDetails = savedInstanceState.getParcelableArrayList(MOVIE);
             setMovieIds(apiMovieDetails);
         }
+        gridViewState = savedInstanceState.getParcelable(GRID_VIEW_STATE);
     }
 
     @Override
@@ -150,10 +158,13 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.most_popular) {
             selection = popular;
+            gridViewState = null;
             (new CallApiBasedOnSelection()).execute(selection);
         } else if (id == R.id.highest_rated) {
             selection = rated;
+            gridViewState = null;
             (new CallApiBasedOnSelection()).execute(selection);
+
         } else {
             selection = favorite;
             updateUIForFav();
@@ -184,6 +195,9 @@ public class MainActivity extends AppCompatActivity {
                 userInfoMessage.setVisibility(View.GONE);
                 apiImageAdapter = new ImageAdapter(apiMovieDetails, this);
                 gridView.setAdapter(apiImageAdapter);
+                if(gridViewState != null){
+                    gridView.onRestoreInstanceState(gridViewState);
+                }
             }
         }
     }
