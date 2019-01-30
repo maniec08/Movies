@@ -1,10 +1,24 @@
 <resources>
     <string name="app_name">Movies</string>
+    <string name="display_movie">Display Movie</string>
     <string name="most_popular">Most Popular</string>
     <string name="highest_rated">Highest Rated</string>
+    <string name="my_favorite">My Favorites</string>
     <string name="image_view_cd">Movie Poster</string>
     <string name="key_selection">selection</string>
     <string name="released_on_label">Released: </string>
     <string name="rating_label">Rating: </string>
     <string name="key_movie_details">movie_details</string>
+    <string name="key_insatnce_movie_details">movie_details_instance</string>
+    <string name="trailers_header_tv">Trailers:</string>
+    <string name="mark_as_favorite_button">  MARK AS FAVORITE </string>
+    <string name="remove_favorite_button">  REMOVE FAVORITE </string>
+    <string name="reviews_header_tv">Reviews:</string>
+    <string name="duration_mins">%s mins</string>
+    <string name="error_loading_image">image unavailable</string>
+    <string name="error_loading_movie">Movie details unavailable</string>
+    <string name="fav_movie_not_selected">Favorite Movie selection is not made,
+        Please choose your fav movie from highest rated/Most popular selection</string>
+    <string name="trailer_unavailble">Trailer unavailable</string>
+    <string name="review_unavailable">Review unavailable</string>
 </resources>
