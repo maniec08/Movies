@@ -9,15 +9,15 @@ import java.util.concurrent.Executors;
 
 public class AppDbExecutors {
     private static final Object LOCK = new Object();
-    private static final String TAG = AppDbExecutors.class.getSimpleName();
     private static AppDbExecutors instance;
     private final Executor diskIo;
-    private final Executor mainThread;
-    private final Executor networkIo;
 
     public Executor getDiskIo() {
         return diskIo;
     }
+
+    private final Executor mainThread;
+    private final Executor networkIo;
 
     public Executor getMainThread() {
         return mainThread;
@@ -27,7 +27,7 @@ public class AppDbExecutors {
         return networkIo;
     }
 
-    public AppDbExecutors(Executor diskIo, Executor mainThread, Executor networkIo) {
+    private AppDbExecutors(Executor diskIo, Executor mainThread, Executor networkIo) {
         this.diskIo = diskIo;
         this.mainThread = mainThread;
         this.networkIo = networkIo;
@@ -52,6 +52,4 @@ public class AppDbExecutors {
             mainThreadHandler.post(runnable);
         }
     }
-
-
 }

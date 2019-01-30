@@ -17,6 +17,8 @@
     <string name="duration_mins">%s mins</string>
     <string name="error_loading_image">image unavailable</string>
     <string name="error_loading_movie">Movie details unavailable</string>
+    <string name="fav_movie_not_selected">Favorite Movie selection is not made,
+        Please choose your fav movie from highest rated/Most popular selection</string>
     <string name="trailer_unavailble">Trailer unavailable</string>
     <string name="review_unavailable">Review unavailable</string>
 </resources>

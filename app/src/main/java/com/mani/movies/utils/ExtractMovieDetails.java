@@ -6,6 +6,7 @@ import android.util.Log;
 import com.mani.movies.datastruct.MovieDetails;
 import com.mani.movies.datastruct.ReviewDetails;
 import com.mani.movies.datastruct.TrailerDetails;
+import com.mani.movies.mock.Api;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +38,7 @@ public class ExtractMovieDetails {
         HttpRequest httpRequest = new HttpRequest(RATED_MOVIES_URL);
         try {
             return parseJson(httpRequest.makeHttpRequest());
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
         return new ArrayList<>();
@@ -92,7 +93,7 @@ public class ExtractMovieDetails {
 
         List<TrailerDetails> trailerDetailsList = new ArrayList<>();
         try {
-            return parseVideoJson((new JSONObject(str)).getJSONArray(KeyConstants.keyResults));
+            return parseVideoJson((new JSONObject(str)).getJSONArray(KeyConstants.keyResults), false);
 
         } catch (JSONException e1) {
             Log.e(TAG, "Json parse error->" + str);
@@ -101,14 +102,14 @@ public class ExtractMovieDetails {
         return trailerDetailsList;
     }
 
-    public static List<TrailerDetails> parseVideoJson(JSONArray jsonArray) {
+    public static List<TrailerDetails> parseVideoJson(JSONArray jsonArray, boolean isTypeCheckNotRequired) {
         List<TrailerDetails> trailerDetailsList = new ArrayList<>();
 
         JSONObject videoJson = new JSONObject();
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 videoJson = jsonArray.getJSONObject(i);
-                if (videoJson.optString(KeyConstants.keyType, "").equalsIgnoreCase(KeyConstants.matchTrailer)) {
+                if (isTypeCheckNotRequired || videoJson.optString(KeyConstants.keyType, "").equalsIgnoreCase(KeyConstants.matchTrailer)) {
                     TrailerDetails trailerDetails = new TrailerDetails(
                             videoJson.optString(KeyConstants.keyName, "Name Unavailable"),
                             videoJson.optString(KeyConstants.keyVideoKey)

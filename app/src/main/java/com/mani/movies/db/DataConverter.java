@@ -18,25 +18,25 @@ import java.util.List;
 public class DataConverter {
 
     @TypeConverter
-    public static List<ReviewDetails> toReviewList(String str){
+    public static List<ReviewDetails> toReviewList(String str) {
         try {
             return ExtractMovieDetails.parseReviewJson(new JSONArray(str));
-        } catch (JSONException e) {
-           return new ArrayList<>();
-        }
-    }
-
-    @TypeConverter
-    public static List<TrailerDetails> toVideoList(String str){
-        try {
-            return ExtractMovieDetails.parseVideoJson(new JSONArray(str));
         } catch (JSONException e) {
             return new ArrayList<>();
         }
     }
 
     @TypeConverter
-    public static String convertReviewListToString(List<ReviewDetails> reviewDetailsList){
+    public static List<TrailerDetails> toVideoList(String str) {
+        try {
+            return ExtractMovieDetails.parseVideoJson(new JSONArray(str), true);
+        } catch (JSONException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @TypeConverter
+    public static String convertReviewListToString(List<ReviewDetails> reviewDetailsList) {
         try {
             JSONArray jsonArray = new JSONArray();
             for (ReviewDetails reviewDetails : reviewDetailsList) {
@@ -46,15 +46,14 @@ public class DataConverter {
                 jsonArray.put(jsonObject);
             }
             return jsonArray.toString();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return "";
         }
 
     }
 
     @TypeConverter
-    public static String convertVideoListToString(List<TrailerDetails> trailerDetailsList){
+    public static String convertVideoListToString(List<TrailerDetails> trailerDetailsList) {
         try {
             JSONArray jsonArray = new JSONArray();
             for (TrailerDetails trailerDetails : trailerDetailsList) {
@@ -64,8 +63,7 @@ public class DataConverter {
                 jsonArray.put(jsonObject);
             }
             return jsonArray.toString();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return "";
         }
 

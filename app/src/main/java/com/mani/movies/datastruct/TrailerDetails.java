@@ -5,7 +5,6 @@ public class TrailerDetails {
     private String name;
     private String key;
 
-
     public TrailerDetails(String name, String key) {
         this.name = name;
         this.key = key;

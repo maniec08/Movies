@@ -14,15 +14,14 @@ import com.mani.movies.datastruct.ReviewDetails;
 import java.util.List;
 
 public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAdapter.ViewHolder> {
-    private ItemClickListener clickListener;
     private List<ReviewDetails> reviewData;
     private LayoutInflater layoutInflater;
 
-    public ReviewRecyclerAdapter(Context context, List<ReviewDetails> data){
+    public ReviewRecyclerAdapter(Context context, List<ReviewDetails> data) {
         this.layoutInflater = LayoutInflater.from(context);
-        reviewData= data;
-
+        reviewData = data;
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -41,7 +40,7 @@ public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAd
         return reviewData.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView reviewAuthor;
         TextView reviewContent;
 
@@ -49,18 +48,7 @@ public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAd
             super(itemView);
             reviewAuthor = itemView.findViewById(R.id.review_author_tv);
             reviewContent = itemView.findViewById(R.id.review_content_tv);
-            itemView.setOnClickListener(this);
-        }
 
-        @Override
-        public void onClick(View view) {
-            if (clickListener != null) clickListener.onItemClick(view, getAdapterPosition());
         }
-    }
-    void setClickListener(ItemClickListener itemClickListener) {
-        this.clickListener = itemClickListener;
-    }
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
     }
 }

@@ -1,12 +1,10 @@
 package com.mani.movies.activity;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,17 +12,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.mani.movies.R;
 import com.mani.movies.adapters.ImageAdapter;
 import com.mani.movies.adapters.MovieViewModel;
 import com.mani.movies.datastruct.MovieDetails;
+import com.mani.movies.db.AppDb;
 import com.mani.movies.utils.ExtractMovieDetails;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mani.movies.activity.MainActivity.MenuSelection.favorite;
 import static com.mani.movies.activity.MainActivity.MenuSelection.popular;
@@ -32,29 +33,85 @@ import static com.mani.movies.activity.MainActivity.MenuSelection.rated;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String SELECTION = "selection";
+    public static final String MOVIE = "movie";
+    public static final String POPULAR = "popular";
+    public static final String RATED = "rated";
+    public static final String FAVORITE = "favorite";
+
     public enum MenuSelection {
         popular, rated, favorite
     }
 
-    private static MenuSelection selection = popular;
-    private String defaultSelectionString = "";
-    ImageView errorImageView;
+    private static MenuSelection selection = MenuSelection.popular;
+    Context context;
+    String defaultSelectionString;
     GridView gridView;
+    ImageAdapter apiImageAdapter;
+    ImageAdapter favImageAdapter;
+    ArrayList<MovieDetails> apiMovieDetails;
+    ArrayList<MovieDetails> favMovieDetails;
     ProgressBar progressBar;
+    TextView userInfoMessage;
+    AppDb appDb;
+    Toolbar toolbar;
+    ArrayList<String> movieIds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
+        appDb = AppDb.getInstance(context);
         defaultSelectionString = getString(R.string.most_popular);
         setContentView(R.layout.activity_main);
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.VISIBLE);
-        errorImageView = findViewById(R.id.error_image);
-        updateSelectionFromSharedPref();
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
+        userInfoMessage = findViewById(R.id.error_message);
         setSupportActionBar(toolbar);
         gridView = findViewById(R.id.movie_grid);
+        updateFavMovieDetailsFromDb();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (selection == MenuSelection.popular || selection == MenuSelection.rated) {
+            if (movieIds == null || movieIds.isEmpty()) {
+                (new CallApiBasedOnSelection()).execute(selection);
+            } else {
+                updateUI();
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        if (selection == MenuSelection.popular || selection == MenuSelection.rated) {
+            savedInstanceState.putParcelableArrayList(MOVIE, apiMovieDetails);
+
+        }
+        savedInstanceState.putString(SELECTION, selection.toString());
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        switch (savedInstanceState.getString(SELECTION, POPULAR)) {
+            case RATED:
+                selection = MenuSelection.rated;
+                break;
+            case FAVORITE:
+                selection = MenuSelection.favorite;
+                break;
+            default:
+                selection = MenuSelection.popular;
+        }
+        if (selection == MenuSelection.popular || selection == MenuSelection.rated) {
+            apiMovieDetails = savedInstanceState.getParcelableArrayList(MOVIE);
+            setMovieIds(apiMovieDetails);
+        }
     }
 
     @Override
@@ -65,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
         MenuItem popular = menu.findItem(R.id.most_popular);
         MenuItem rated = menu.findItem(R.id.highest_rated);
         MenuItem favorite = menu.findItem(R.id.favorite);
@@ -95,86 +151,137 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.most_popular) {
             selection = popular;
             (new CallApiBasedOnSelection()).execute(selection);
-            updateSharedPrefBasedOnSelection(getString(R.string.most_popular));
         } else if (id == R.id.highest_rated) {
             selection = rated;
             (new CallApiBasedOnSelection()).execute(selection);
-            updateSharedPrefBasedOnSelection(getString(R.string.highest_rated));
         } else {
             selection = favorite;
-            updateSharedPrefBasedOnSelection(getString(R.string.my_favorite));
-            queryDb();
+            updateUIForFav();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateSelectionFromSharedPref() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        String selectedValue = sharedPrefs.getString(
-                getString(R.string.key_selection),
-                defaultSelectionString
-        );
-        if (selectedValue != null) {
-            if (selectedValue.equalsIgnoreCase(getString(R.string.highest_rated))) {
-                selection = rated;
-                (new CallApiBasedOnSelection()).execute(selection);
-            } else if (selectedValue.equalsIgnoreCase(getString(R.string.most_popular))) {
-                selection = popular;
-                (new CallApiBasedOnSelection()).execute(selection);
+    private void updateTitleBasedOnsElection() {
+        if (selection == popular) {
+            toolbar.setTitle(getString(R.string.most_popular));
+        } else if (selection == rated) {
+            toolbar.setTitle(getString(R.string.highest_rated));
+        } else {
+            toolbar.setTitle(getString(R.string.my_favorite));
+        }
+    }
+
+    private void updateUI() {
+        progressBar.setVisibility(View.GONE);
+        gridView.setVisibility(View.VISIBLE);
+        if (selection == MenuSelection.rated || selection == MenuSelection.popular) {
+            updateTitleBasedOnsElection();
+            if (apiMovieDetails == null || apiMovieDetails.isEmpty()) {
+                userInfoMessage.setText(getString(R.string.error_loading_movie));
+                userInfoMessage.setVisibility(View.VISIBLE);
+                gridView.setVisibility(View.GONE);
             } else {
-                selection = favorite;
-                queryDb();
+                userInfoMessage.setVisibility(View.GONE);
+                apiImageAdapter = new ImageAdapter(apiMovieDetails, this);
+                gridView.setAdapter(apiImageAdapter);
             }
         }
     }
 
-    private void updateSharedPrefBasedOnSelection(String newValue) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(getString(R.string.key_selection), newValue);
-        editor.apply();
-    }
-
-    private void updateUI(List<MovieDetails> movieDetails) {
+    private void updateUIForFav() {
         progressBar.setVisibility(View.GONE);
-        if (movieDetails == null || movieDetails.isEmpty()) {
-            errorImageView.setVisibility(View.VISIBLE);
-        } else {
-            ImageAdapter imageAdapter = new ImageAdapter(movieDetails, this);
-            gridView.setAdapter(imageAdapter);
+        gridView.setVisibility(View.VISIBLE);
+        if (selection == MenuSelection.favorite) {
+            updateTitleBasedOnsElection();
+            if (favMovieDetails == null || favMovieDetails.isEmpty()) {
+                userInfoMessage.setText(getString(R.string.fav_movie_not_selected));
+                userInfoMessage.setVisibility(View.VISIBLE);
+                gridView.setVisibility(View.GONE);
+            } else {
+                userInfoMessage.setVisibility(View.GONE);
+                favImageAdapter = new ImageAdapter(favMovieDetails, this);
+                gridView.setAdapter(favImageAdapter);
+            }
         }
     }
 
-    public void queryDb() {
+    public void updateFavMovieDetailsFromDb() {
         MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        movieViewModel.getMovieDetails().observe(this, new Observer<List<MovieDetails>>() {
+        movieViewModel.getFavMovieDetails().observe(this, new Observer<List<MovieDetails>>() {
             @Override
             public void onChanged(@Nullable List<MovieDetails> movieDetails) {
-                updateUI(movieDetails);
+                favMovieDetails = (ArrayList) movieDetails;
+                favImageAdapter = new ImageAdapter(movieDetails, context);
+                updateUIForFav();
             }
         });
+        movieViewModel.setMovieDetails(AppDb.getInstance(this.getApplication()).movieDao().getFavMovieDetails());
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class CallApiBasedOnSelection extends AsyncTask<MenuSelection, Void, List<MovieDetails>> {
-        @Override
-        protected List<MovieDetails> doInBackground(MenuSelection... menuSelections) {
+    private void setMovieIds(List<MovieDetails> movieDetailsList) {
+        if (movieDetailsList == null) {
+            return;
+        }
+        movieIds = new ArrayList<>();
+        for (MovieDetails movieDetails : movieDetailsList) {
+            movieIds.add(movieDetails.getMovieId());
+        }
+    }
 
+    private class CallApiBasedOnSelection extends AsyncTask<MainActivity.MenuSelection, Void, List<MovieDetails>> {
+        @Override
+        protected List<MovieDetails> doInBackground(MainActivity.MenuSelection... menuSelections) {
+            apiMovieDetails = new ArrayList<>();
+            List<MovieDetails> movieDetailsApiList = new ArrayList<>();
             switch (menuSelections[0]) {
                 case popular:
-                    return ExtractMovieDetails.getPopularMovies();
+                    movieDetailsApiList = ExtractMovieDetails.getPopularMovies();
+                    break;
                 case rated:
-                    return ExtractMovieDetails.getRatedMovies();
+                    movieDetailsApiList = ExtractMovieDetails.getRatedMovies();
+                    break;
                 default:
-                    return new ArrayList<>();
+                    break;
             }
+            setMovieIds(movieDetailsApiList);
+            //Merge and insert the details. Needs DB refactor if API returns more number of rows
+            List<MovieDetails> movieDetailsListDb = appDb.movieDao().getMovieDetails(movieIds.toArray(new String[0]));
+            appDb.movieDao().insertMovies(updateMovieList(movieDetailsApiList, movieDetailsListDb));
+            return movieDetailsApiList;
         }
 
+        private MovieDetails getMergedMovieDetails(MovieDetails movieDetailsDb, MovieDetails movieDetailsApi) {
+            movieDetailsDb.setMoviePosterUrl(movieDetailsApi.getMoviePosterUrl());
+            movieDetailsDb.setThumbnail(movieDetailsApi.getThumbnail());
+            movieDetailsDb.setTitle(movieDetailsApi.getTitle());
+            movieDetailsDb.setOverview(movieDetailsApi.getOverview());
+            movieDetailsDb.setRating(movieDetailsApi.getRating());
+            movieDetailsDb.setReleaseDate(movieDetailsApi.getReleaseDate());
+            return movieDetailsDb;
+        }
+
+        private List<MovieDetails> updateMovieList(final List<MovieDetails> movieDetailsListApi, final List<MovieDetails> movieDetailsListDb) {
+            List<MovieDetails> newMoviesList = new ArrayList<>();
+            Map<String, MovieDetails> movieDetailsMap = new HashMap<>();
+            for (MovieDetails movieDetails : movieDetailsListDb) {
+                movieDetailsMap.put(movieDetails.getMovieId(), movieDetails);
+            }
+            for (MovieDetails movieDetailsApi : movieDetailsListApi) {
+                if (movieDetailsMap.containsKey(movieDetailsApi.getMovieId())) {
+                    newMoviesList.add(getMergedMovieDetails(
+                            movieDetailsMap.get(movieDetailsApi.getMovieId()), movieDetailsApi));
+                } else {
+                    newMoviesList.add(movieDetailsApi);
+                }
+            }
+            return newMoviesList;
+        }
 
         @Override
         protected void onPostExecute(List<MovieDetails> movieDetails) {
             super.onPostExecute(movieDetails);
-            updateUI(movieDetails);
+            apiMovieDetails = (ArrayList) movieDetails;
+            updateUI();
         }
     }
 }

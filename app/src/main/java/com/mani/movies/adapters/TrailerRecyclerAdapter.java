@@ -26,7 +26,6 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
         this.layoutInflater = LayoutInflater.from(context);
         trailerData = data;
         trailerContext = context;
-
     }
 
     private void playVideo(int position) {
@@ -38,7 +37,6 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
         } catch (ActivityNotFoundException ex) {
             trailerContext.startActivity(webIntent);
         }
-
     }
 
     @NonNull
@@ -66,10 +64,8 @@ public class TrailerRecyclerAdapter extends RecyclerView.Adapter<TrailerRecycler
             super(itemView);
             trailorTextView = itemView.findViewById(R.id.trailer_describtion_tv);
             playButton = itemView.findViewById(R.id.trailer_play_iv);
-
             itemView.setOnClickListener(this);
             playButton.setOnClickListener(this);
-
         }
 
         @Override

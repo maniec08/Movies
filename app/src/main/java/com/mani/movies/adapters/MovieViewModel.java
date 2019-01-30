@@ -16,10 +16,14 @@ public class MovieViewModel extends AndroidViewModel {
 
     public MovieViewModel(@NonNull Application application) {
         super(application);
-        movieDetails = AppDb.getInstance(this.getApplication()).movieDao().getStoredMovieDetails();
+        movieDetails = AppDb.getInstance(this.getApplication()).movieDao().getFavMovieDetails();
     }
 
-    public LiveData<List<MovieDetails>> getMovieDetails() {
+    public LiveData<List<MovieDetails>> getFavMovieDetails() {
         return movieDetails;
+    }
+
+    public void setMovieDetails(LiveData<List<MovieDetails>> movieDetails) {
+        this.movieDetails = movieDetails;
     }
 }

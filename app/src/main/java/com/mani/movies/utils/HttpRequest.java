@@ -14,11 +14,13 @@ import java.nio.charset.Charset;
 class HttpRequest {
     private static final String TAG = HttpRequest.class.getSimpleName();
     private URL requestUrl;
+    //TODO: Move to gradle.properties
     private static String API_KEY = "5bec4d5c49f34f67b3c31e23cfd32a6b";
     private HttpURLConnection connection = null;
 
     HttpRequest(String url) {
         try {
+
             requestUrl = new URL(url + "?api_key=" + API_KEY);
         } catch (MalformedURLException e) {
             Log.d(TAG, "Invalid URL");

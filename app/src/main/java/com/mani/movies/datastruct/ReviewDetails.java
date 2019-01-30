@@ -17,5 +17,4 @@ public class ReviewDetails {
     public String getReviewAuthor() {
         return reviewAuthor;
     }
-
 }

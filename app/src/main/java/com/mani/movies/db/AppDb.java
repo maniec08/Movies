@@ -1,14 +1,13 @@
 package com.mani.movies.db;
 
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
 import com.mani.movies.datastruct.MovieDetails;
 
-@Database(entities = MovieDetails.class, version = 1, exportSchema= false)
+@Database(entities = MovieDetails.class, version = 1, exportSchema = false)
 public abstract class AppDb extends RoomDatabase {
     private static final Object LOCK = new Object();
     private static final String TAG = AppDb.class.getSimpleName();
